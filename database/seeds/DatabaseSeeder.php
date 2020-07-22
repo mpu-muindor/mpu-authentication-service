@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         factory(\App\Models\Professor::class, 100)->create()->each(function ($u) {
             factory(\App\Models\EmploymentData::class, 2)->create();
         });
-        factory(\App\Models\Student::class, 500);
+        factory(\App\Models\Student::class, 500)->create();
         // $this->call(UserSeeder::class);
     }
 }

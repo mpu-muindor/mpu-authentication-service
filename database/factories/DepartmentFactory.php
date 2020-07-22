@@ -10,7 +10,7 @@ $factory->define(Department::class, function (Faker $faker) {
         'title' => $faker->word,
 
         'faculty_id' => function () {
-            return Faculty::all()->random()->first()->id;
+            return Faculty::all()->random(1)->first()->id;
         },
     ];
 });

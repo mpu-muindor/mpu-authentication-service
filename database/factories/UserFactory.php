@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 
 $factory->define(User::class, static function (Faker $faker) {
     return [
-        'login' => $faker->userName,
+        'login' => $faker->userName . random_int(100,1000),
         'first_name' => $faker->firstName,
         'last_name' => $faker->lastName,
         'middle_name' => random_int(0, 100) < 20 ? $faker->middleName : null,

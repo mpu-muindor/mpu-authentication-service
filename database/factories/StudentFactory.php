@@ -8,10 +8,10 @@ use Illuminate\Support\Carbon;
 $factory->define(Student::class, function (Faker $faker) {
     return [
         'user_id' => function () {
-            return factory(\App\Models\User::class, 1)->create()->id;
+            return factory(\App\Models\User::class)->create()->id;
         },
         'group_id' => function () {
-            return \App\Models\Group::all()->random()->first()->id;
+            return \App\Models\Group::all()->random(1)->first()->id;
         },
         'sex' => $faker->boolean,
         'student_code' => 'БС2-'.(string) random_int(10000, 99999),

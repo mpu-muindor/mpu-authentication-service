@@ -16,7 +16,7 @@ $factory->define(Group::class, function (Faker $faker) {
         'start_year' => $faker->year,
 
         'department_id' => function () {
-            return Department::all()->random()->first()->id;
+            return Department::all()->random(1)->first()->id;
         },
     ];
 });
