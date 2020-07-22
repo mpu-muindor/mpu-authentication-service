@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/auth/login', 'AuthController@login');
-Route::get('/auth/register', 'AuthController@register');
-Route::get('/auth/logout', 'AuthController@logout');
+Route::post('/auth/login', 'AuthController@login');
+Route::post('/user', 'ApiController@getUserData');
+Route::post('/user/professor', 'ApiController@getProfessorData');
+Route::post('/user/student', 'ApiController@getStudentData');

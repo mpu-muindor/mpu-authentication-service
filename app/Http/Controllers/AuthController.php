@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\JWTService;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         $user->save();
 
-        return JWTService::generateJWT($user);
+        return JWTService::generateJWT($user->toArray());
     }
 
     public function login(Request $request)
@@ -40,11 +40,11 @@ class AuthController extends Controller
         if ($user && Hash::check($password, $user->password)) {
             return [
                 'type' => 'JWT',
-                'token' => JWTService::generateJWT($user),
+                'token' => JWTService::generateJWT($user->toArray()),
             ];
         }
 
-        return ['error' => 'Wrong login/password'];
+        return response(['message' => 'Wrong login/password'], 401);
     }
 
     public function logout(Request $request)

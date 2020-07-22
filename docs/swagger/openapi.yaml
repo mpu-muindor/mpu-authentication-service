@@ -1,0 +1,218 @@
+openapi: 3.0.1
+info:
+  title: Auth API of Moscow polytech
+  description: API сервиса аутентификации для прототипа нового личного кабинета Московского политеха.
+  version: 1.0.0
+servers:
+  - url: 'https://auth.6an.ru'
+paths:
+  /auth/login:
+    post:
+      summary: Возвращает JWT токен авторизации для клиента.
+      parameters:
+        - name: login
+          description: Login
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          description: Пароль
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                format: jwt
+                type: string
+                description: JWT
+        '401':
+          $ref: '#/components/responses/UnauthResponse'
+      security: []
+  /user:
+    post:
+      summary: Возвращает основные данные авторизованного пользователя
+      responses:
+        200:
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+  /user/professor:
+    post:
+      summary: Возвращает данные преподавателя
+      responses:
+        200:
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Professor'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+  /user/student:
+    post:
+      summary: Возвращает данные студента
+      responses:
+        200:
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+        403:
+          $ref: '#/components/responses/ForbiddenResponse'
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Токен авторизации
+  responses:
+    UnauthResponse:
+      description: Ответ с ошибкой аутентификации
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Сообщение об ошибке аутентификации
+    ForbiddenResponse:
+      description: Ответ с ошибкой авторизации
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Сообщение об ошибке авторизации
+  schemas:
+    Faculty:
+      type: object
+      properties:
+        title:
+          type: string
+    Department:
+      type: object
+      properties:
+        title:
+          type: string
+        faculty:
+          $ref: '#/components/schemas/Faculty'
+    Group:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        specialty:
+          type: string
+        specialization:
+          type: string
+        study_program:
+          type: string
+        study_period:
+          type: integer
+          description: Период обучения в месяцах
+        study_form:
+          type: string
+        start_year:
+          type: string
+        department:
+          $ref: '#/components/schemas/Department'
+    Student:
+      type: object
+      properties:
+        student_code:
+          type: string
+        status:
+          type: string
+        sex:
+          type: boolean
+          description: 0 - male; 1 - female
+        group:
+          $ref: '#/components/schemas/Group'
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+    Professor:
+      type: object
+      properties:
+        location:
+          type: string
+        employmentData:
+          type: object
+          properties:
+            department:
+              type: string
+              description: Отделение
+            position:
+              type: string
+              description: Должность
+            multiplier:
+              type: integer
+              description: Множитель ставки
+            created_at:
+              format: date-time
+              type: string
+            updated_at:
+              format: date-time
+              type: string
+    User:
+      type: object
+      properties:
+        id:
+          format: uuid
+          type: string
+        type:
+          type: string
+          enum:
+            - professor
+            - student
+        first_name:
+          type: string
+        middle_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+        birthday:
+          format: date
+          type: string
+        login:
+          type: string
+        email:
+          format: email
+          type: string
+        phone:
+          type: string
+          nullable: true
+        about:
+          type: string
+          nullable: true
+
+security:
+  - bearerAuth: []
