@@ -2,12 +2,19 @@ openapi: 3.0.1
 info:
   title: Auth API of Moscow polytech
   description: API сервиса аутентификации для прототипа нового личного кабинета Московского политеха.
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: 'https://auth.6an.ru'
+tags:
+  - name: 'main'
+  - name: 'auth'
+  - name: 'service'
+    description: 'Требуется авторизация с помощью api_token в теле каждого запроса.'
 paths:
-  /auth/login:
+  /api/auth/login:
     post:
+      tags:
+        - auth
       summary: Возвращает JWT токен авторизации для клиента.
       parameters:
         - name: login
@@ -35,8 +42,45 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthResponse'
       security: []
-  /user:
+  /api/auth/logout:
     post:
+      tags:
+        - auth
+      summary: Удаляет токен авторизации
+      description: auth
+      parameters:
+        - name: login
+          description: Login
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          description: Пароль
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                format: jwt
+                type: string
+                description: JWT
+        '401':
+          $ref: '#/components/responses/UnauthResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+      security: []
+
+  /api/user:
+    post:
+      tags:
+        - main
       summary: Возвращает основные данные авторизованного пользователя
       responses:
         200:
@@ -47,8 +91,10 @@ paths:
                 $ref: '#/components/schemas/User'
         401:
           $ref: '#/components/responses/UnauthResponse'
-  /user/professor:
+  /api/user/professor:
     post:
+      tags:
+        - main
       summary: Возвращает данные преподавателя
       responses:
         200:
@@ -61,8 +107,10 @@ paths:
           $ref: '#/components/responses/UnauthResponse'
         403:
           $ref: '#/components/responses/ForbiddenResponse'
-  /user/student:
+  /api/user/student:
     post:
+      tags:
+        - main
       summary: Возвращает данные студента
       responses:
         200:
@@ -76,6 +124,145 @@ paths:
         403:
           $ref: '#/components/responses/ForbiddenResponse'
 
+  /api/service/verify-token:
+    post:
+      tags:
+        - service
+      summary: 'Проверка JWT токена на стороне сервиса авторизации'
+      description: 'Проверяет JWT токен на стороне сервиса на корректность, авторизацию, истечении срока использования'
+      parameters:
+        - name: jwt
+          description: Токен для проверки
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Сообщение о результате проверки
+                  result:
+                    type: boolean
+                    description: Результат проверки
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+      security:
+        - serviceApiKey: []
+  /api/service/departments:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех кафедр в системе'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+        '401':
+          $ref: '#/components/responses/UnauthResponse'
+  /api/service/faculties:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех факультетов в системе'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Faculty'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+  /api/service/groups:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех групп'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+  /api/service/professors:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех преподавателей в системе'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Professor'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+  /api/service/students:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех студентов в системе'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
+  /api/service/users:
+    post:
+      tags:
+        - service
+      summary: 'Возвращает список всех пользователей в системе с их данными как студента/преподавателя'
+      security:
+        - serviceApiKey: []
+      responses:
+        200:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthResponse'
 
 components:
   securitySchemes:
@@ -84,9 +271,23 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Токен авторизации
+    serviceApiKey:
+      type: apiKey
+      name: api_token
+      in: query
   responses:
+    MessageResponse:
+      description: 'Ответ сервера с сообщением'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Текст сообщения
     UnauthResponse:
-      description: Ответ с ошибкой аутентификации
+      description: 'Ответ с ошибкой аутентификации. Решение ошибки: повторная авторизация'
       content:
         application/json:
           schema:
