@@ -21,11 +21,11 @@ class ServiceApiController extends Controller
      *
      * @return Service
      */
-    public function regisrter(string $title): Service
+    public function register(string $title): Service
     {
-        $service = new Service();
         $token = Str::random(48);
-        $service->save(['title' => $title, 'token' => $token]);
+        $service = new Service(['title' => $title, 'token' => $token]);
+        $service->save();
 
         return $service;
     }
