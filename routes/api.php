@@ -14,7 +14,20 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/auth/login', 'AuthController@login');
-Route::post('/auth/logout', 'AuthController@logout')->middleware(['auth.jwt']);
-Route::post('/user', 'ApiController@getUserData')->middleware(['auth.jwt']);
-Route::post('/user/professor', 'ApiController@getProfessorData')->middleware(['auth.jwt']);
-Route::post('/user/student', 'ApiController@getStudentData')->middleware(['auth.jwt']);
+
+Route::middleware(['auth.jwt'])->group(static function () {
+    Route::post('/auth/logout', 'AuthController@logout');
+    Route::post('/user', 'ApiController@getUserData');
+    Route::post('/user/professor', 'ApiController@getProfessorData');
+    Route::post('/user/student', 'ApiController@getStudentData');
+});
+
+Route::prefix('service')->middleware(['auth.service'])->group(static function () {
+    Route::post('verify-token', 'ServiceApiController@verifyUserToken');
+    Route::post('users', 'ServiceApiController@getUserList');
+    Route::post('professors', 'ServiceApiController@getProfessors');
+    Route::post('students', 'ServiceApiController@getStudents');
+    Route::post('faculties', 'ServiceApiController@getFaculties');
+    Route::post('departments', 'ServiceApiController@getDepartments');
+    Route::post('groups', 'ServiceApiController@getGroups');
+});
