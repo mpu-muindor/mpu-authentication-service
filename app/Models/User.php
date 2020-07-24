@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -24,26 +25,8 @@ use Ramsey\Uuid\Uuid;
 class User extends Model
 {
     /**
-     * @var bool
+     * Устанавливает uuid новому пользователю.
      */
-    public $incrementing = false;
-    /**
-     * The "type" of the auto-incrementing ID.
-     *
-     * @var string
-     */
-    protected $keyType = 'string';
-    /**
-     * @var array
-     */
-    protected $fillable = [
-        'first_name', 'middle_name', 'last_name', 'birthday', 'login', 'email', 'password', 'phone', 'about'
-    ];
-    protected $hidden = [
-        'password'
-    ];
-    protected $appends = ['user_type'];
-
     protected static function boot()
     {
         parent::boot();
@@ -53,9 +36,67 @@ class User extends Model
         });
     }
 
-    public function getUserTypeAttribute()
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The "type" of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'first_name', 'middle_name', 'last_name', 'birthday', 'login', 'email', 'password', 'phone', 'about'
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected $hidden = [
+        'password', 'salt'
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected $appends = ['user_type', 'salt'];
+
+    /**
+     * @return string
+     */
+    public function getUserTypeAttribute(): string
     {
         return ($this->students()->get()->toArray()) ? 'student' : 'professor';
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsProfessorAttribute(): bool
+    {
+        return $this->attributes['user_type'] === 'professor';
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsStudentAttribute(): bool
+    {
+        return $this->attributes['user_type'] === 'student';
+    }
+
+    /**
+     * @return string
+     */
+    public function getSaltAttribute(): string
+    {
+        return Str::random(32);
     }
 
     /**

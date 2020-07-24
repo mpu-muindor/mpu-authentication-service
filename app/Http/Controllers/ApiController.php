@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\JWTService as JWT;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Services\JWTService as JWT;
 
 /**
  * Class ApiController
@@ -23,10 +23,6 @@ class ApiController extends Controller
     public function getUserData(Request $request)
     {
         $jwt = $request->bearerToken();
-        if (!JWT::verify($jwt)) {
-            return response()->json(['message' => 'Wrong token'], 401);
-        }
-
         $data = JWT::getPayload($jwt);
         $user = User::whereId($data['id'])->first();
 
@@ -36,14 +32,10 @@ class ApiController extends Controller
     public function getProfessorData(Request $request)
     {
         $jwt = $request->bearerToken();
-        if (!JWT::verify($jwt)) {
-            return response()->json(['message' => 'Wrong token'], 401);
-        }
-
         $data = JWT::getPayload($jwt);
         $user = User::whereId($data['id'])->with('professors.employmentDatas')->first();
 
-        if ($user->user_type !== 'professor') {
+        if (!$user->isProfessor) {
             return response()->json(['message' => 'Unauthorized token'], 403);
         }
 
@@ -53,14 +45,10 @@ class ApiController extends Controller
     public function getStudentData(Request $request)
     {
         $jwt = $request->bearerToken();
-        if (!JWT::verify($jwt)) {
-            return response()->json(['message' => 'Wrong token'], 401);
-        }
-
         $data = JWT::getPayload($jwt);
         $user = User::whereId($data['id'])->with('students')->first();
 
-        if ($user->user_type !== 'student') {
+        if (!$user->isStudent) {
             return response()->json(['message' => 'Unauthorized token'], 403);
         }
 

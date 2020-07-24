@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/auth/login', 'AuthController@login');
-Route::post('/user', 'ApiController@getUserData');
-Route::post('/user/professor', 'ApiController@getProfessorData');
-Route::post('/user/student', 'ApiController@getStudentData');
+Route::post('/auth/logout', 'AuthController@logout')->middleware(['auth.jwt']);
+Route::post('/user', 'ApiController@getUserData')->middleware(['auth.jwt']);
+Route::post('/user/professor', 'ApiController@getProfessorData')->middleware(['auth.jwt']);
+Route::post('/user/student', 'ApiController@getStudentData')->middleware(['auth.jwt']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\JWTService;
+use App\Models\ReleasedToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -38,10 +39,13 @@ class AuthController extends Controller
 
         $user = User::whereLogin($login)->first();
         if ($user && Hash::check($password, $user->password)) {
-            return [
+            $responseData = [
                 'type' => 'JWT',
-                'token' => JWTService::generateJWT($user->toArray()),
+                'token' => JWTService::generateJWT($user->makeVisible('salt')->toArray()),
             ];
+            (new ReleasedToken(['token' => (string) sha1($responseData['token'])]))->save();
+
+            return $responseData;
         }
 
         return response(['message' => 'Wrong login/password'], 401);
@@ -49,6 +53,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        //
+        $jwt = $request->bearerToken();
+        $rt = ReleasedToken::find(sha1($jwt));
+        if ($rt && $rt->delete()) {
+            return response(['message' => 'OK']);
+        }
+
+        return response(['message' => 'Something gone wrong! Please contact with admin.'], 500);
     }
 }
