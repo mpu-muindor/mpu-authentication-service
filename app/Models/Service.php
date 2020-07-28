@@ -25,4 +25,9 @@ class Service extends Model
      */
     protected $fillable = ['title', 'token'];
 
+    public function logs()
+    {
+        return $this->hasMany(ServiceLog::class);
+    }
+
 }

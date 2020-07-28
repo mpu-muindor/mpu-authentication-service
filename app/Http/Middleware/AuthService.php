@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\FailedServiceAuthEvent;
 use App\Models\Service;
 use Closure;
 
@@ -19,9 +20,13 @@ class AuthService
     {
         $request->validate(['api_token' => 'required|string']);
         $token = $request->get('api_token');
-        if (!Service::whereToken($token)->first()) {
+        $service = Service::whereToken($token)->first();
+
+        if (!$service) {
+            FailedServiceAuthEvent::dispatch($service, $request, false);
             return response()->json(['message' => 'Unknown api token'], 401);
         }
+        FailedServiceAuthEvent::dispatch($service, $request, true);
 
         return $next($request);
     }
