@@ -1,0 +1,75 @@
+version: '3'
+services:
+
+  #PHP Service
+  mpu-auth-app:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    image: digitalocean.com/php
+    container_name: mpu-auth-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    volumes:
+      - ./src:/app
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    working_dir: /app
+    networks:
+      - app-network
+
+  mpu-auth-queue:
+    image: ipunktbs/laravel-queue-worker:php7.4-v4.5
+    container_name: mpu-auth-queue
+    restart: unless-stopped
+    tty: true
+    environment:
+      QUEUE_CONNECTION: database
+    volumes:
+      - ./src:/app
+    networks:
+      - app-network
+
+  #Nginx Service
+  mpu-auth-webserver:
+    image: nginx:alpine
+    container_name: mpu-auth-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "1080:80"
+      - "10443:443"
+    volumes:
+      - ./src:/app
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  #Database Service
+  mpu-auth-db:
+    image: library/postgres:13.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=stage
+    volumes:
+      - ./docker/postgresql:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    networks:
+      - app-network
+
+  mpu-auth-composer:
+    image: composer:2.0
+    volumes:
+      - ./src:/app
+    working_dir: /app
+    command: composer install
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
