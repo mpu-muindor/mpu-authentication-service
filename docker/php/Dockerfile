@@ -20,6 +20,7 @@ RUN docker-php-ext-install pgsql \
   && docker-php-ext-install pdo_pgsql \
   && docker-php-ext-install intl \
   && docker-php-ext-install zip \
+  && docker-php-ext-install mbstring \
   && docker-php-ext-install exif \
   && docker-php-ext-install opcache \
   && docker-php-source delete
@@ -27,6 +28,9 @@ RUN docker-php-ext-install pgsql \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
   && docker-php-source delete
+
+RUN pecl install xdebug-2.9.2 \
+    && docker-php-ext-enable xdebug
 
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www

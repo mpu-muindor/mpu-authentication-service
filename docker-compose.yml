@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
-    image: digitalocean.com/php
+    image: mpu-auth-app
     container_name: mpu-auth-app
     restart: unless-stopped
     tty: true
@@ -19,6 +19,9 @@ services:
     working_dir: /app
     networks:
       - app-network
+    depends_on:
+      - mpu-auth-db
+      - mpu-auth-composer
 
   mpu-auth-queue:
     image: ipunktbs/laravel-queue-worker:php7.4-v4.5
@@ -31,6 +34,9 @@ services:
       - ./src:/app
     networks:
       - app-network
+    depends_on:
+      - mpu-auth-db
+      - mpu-auth-composer
 
   #Nginx Service
   mpu-auth-webserver:
@@ -46,6 +52,8 @@ services:
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - app-network
+    depends_on:
+      - mpu-auth-app
 
   #Database Service
   mpu-auth-db:
@@ -68,6 +76,27 @@ services:
       - ./src:/app
     working_dir: /app
     command: composer install
+
+  mpu-auth-redis:
+    image: "redis:alpine"
+    command: redis-server
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      - app-network
+
+  mpu-auth-migrator:
+    image: mpu-auth-app
+    command: [ "./wait-for-it.sh", "mpu-auth-db:5432", "-t", "10", "--", "php", "artisan", "migrate" ]
+    volumes:
+      - ./src:/app
+    networks:
+      - app-network
+    depends_on:
+      - mpu-auth-composer
+      - mpu-auth-db
 
 #Docker Networks
 networks:
