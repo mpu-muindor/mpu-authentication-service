@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Procedures\TennisProcedure;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+// test rpc api
+Route::rpc('/v1/endpoint', [TennisProcedure::class])->name('rpc.endpoint');
+// -----
 
 Route::post('/auth/login', 'AuthController@login');
 
