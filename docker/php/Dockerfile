@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.0-fpm
 
 RUN apt-get update \
   && apt-get install -y \
@@ -14,6 +14,7 @@ RUN apt-get update \
              graphviz \
              libcurl4-openssl-dev \
              pkg-config \
+             zip git nano \
              libpq-dev
 
 RUN docker-php-ext-install pgsql \
@@ -23,13 +24,15 @@ RUN docker-php-ext-install pgsql \
   && docker-php-ext-install mbstring \
   && docker-php-ext-install exif \
   && docker-php-ext-install opcache \
+  && docker-php-ext-install bcmath \
   && docker-php-source delete
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
-  && docker-php-source delete
+  && docker-php-source delete \
+  && apt-get autoremove --purge -y && apt-get autoclean -y && apt-get clean -y
 
-RUN pecl install xdebug-2.9.2 \
+RUN pecl install xdebug-3.0.0 \
     && docker-php-ext-enable xdebug
 
 RUN groupadd -g 1000 www
