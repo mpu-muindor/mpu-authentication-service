@@ -58,6 +58,7 @@ services:
   #Database Service
   mpu-auth-db:
     image: library/postgres:13.1-alpine
+    container_name: mpu-auth-db
     restart: always
     environment:
       - POSTGRES_PASSWORD=secret
