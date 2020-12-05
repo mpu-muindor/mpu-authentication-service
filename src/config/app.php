@@ -228,4 +228,6 @@ return [
 
     ],
 
+    'JWTSecret' => env('JWT_SECRET'),
+
 ];

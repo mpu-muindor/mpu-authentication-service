@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Department;
-use App\Models\Student;
 
 /**
  * @property integer $id
@@ -31,7 +29,15 @@ class Group extends Model
     /**
      * @var array
      */
-    protected $fillable = ['department_id', 'title', 'specialty', 'specialization', 'study_program', 'study_period', 'study_form', 'start_year'];
+    protected $fillable = [
+        'department_id',
+        'title', 'specialty',
+        'specialization',
+        'study_program',
+        'study_period',
+        'study_form',
+        'start_year'
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

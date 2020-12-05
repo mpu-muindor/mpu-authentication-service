@@ -41,6 +41,4 @@ class ServiceLog extends Model
     {
         return $this->belongsTo(\App\Models\Service::class);
     }
-
-
 }

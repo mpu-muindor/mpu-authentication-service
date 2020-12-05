@@ -8,7 +8,7 @@ use Psy\Util\Json;
 class JWTService
 {
     /**
-     * @param  array  $data
+     * @param array $data
      *
      * @return string
      */
@@ -24,21 +24,20 @@ class JWTService
         $b64Payload = self::b64JWT($payload);
         $b64Sign = self::hashToken($b64Header, $b64Payload);
 
-        return $b64Header.'.'.$b64Payload.'.'.$b64Sign;
+        return $b64Header . '.' . $b64Payload . '.' . $b64Sign;
     }
 
     /**
-     * @param $token string
-     * @param $secret string
-     *
+     * @param string $token
+     * @param string|null $secret
      * @return bool
      */
     public static function verify(string $token, string $secret = null): bool
     {
         if ($secret === null) {
-            $secret = env('JWT_SECRET');
+            $secret = \Config::get('app.JWTSecret');
         }
-        if (count(Str::of($token)->matchAll('/\./')) !== 2) {
+        if (Str::of($token)->matchAll('/\./')->count() !== 2) {
             return false;
         }
         [$header, $payload, $sign] = Str::of($token)->split('/[\s.]+/');
@@ -48,40 +47,40 @@ class JWTService
     }
 
     /**
-     * @param  string  $token
+     * @param string $token
      *
-     * @return array|bool
+     * @return array|null
      */
-    public static function getPayload(string $token): array
+    public static function getPayload(string $token): ?array
     {
-        if (count(Str::of($token)->matchAll('/\./')) !== 2) {
-            return false;
+        if (Str::of($token)->matchAll('/\./')->count() !== 2) {
+            return null;
         }
         [$header, $payload, $sign] = Str::of($token)->split('/[\s.]+/');
-        $payload = json_decode(self::decode_b64JWT($payload), true);
+        $payload = json_decode(self::decodeToBase64JWT($payload), true, 512, JSON_THROW_ON_ERROR);
 
         return $payload;
     }
 
     /**
-     * @param $header string
-     * @param $payload string
-     * @param  null  $secret  string|null
+     * @param string $header
+     * @param string $payload
+     * @param string|null $secret
      *
      * @return string
      */
     private static function hashToken(string $header, string $payload, $secret = null): string
     {
         if ($secret === null) {
-            $secret = env('JWT_SECRET');
+            $secret = \Config::get('app.JWTSecret');
         }
 
-        $sign = hash_hmac('sha256', $header.'.'.$payload, $secret, true);
+        $sign = hash_hmac('sha256', $header . '.' . $payload, $secret, true);
         return self::b64JWT($sign);
     }
 
     /**
-     * @param $string string
+     * @param string $string
      *
      * @return string
      */
@@ -91,12 +90,12 @@ class JWTService
     }
 
     /**
-     * @param $string string
+     * @param string $string
      *
      * @return string
      */
-    private static function decode_b64JWT(string $string): string
+    private static function decodeToBase64JWT(string $string): ?string
     {
-        return base64_decode(str_replace(['-', '_'], ['+', '/'], $string));
+        return base64_decode(str_replace(['-', '_'], ['+', '/'], $string)) ?: null;
     }
 }

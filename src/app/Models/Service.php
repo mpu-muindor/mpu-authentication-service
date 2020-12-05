@@ -29,5 +29,4 @@ class Service extends Model
     {
         return $this->hasMany(ServiceLog::class);
     }
-
 }

@@ -42,7 +42,7 @@ class FailedServiceAuthEvent
 
     public function log()
     {
-        if ($this->service) {
+        if (isset($this->service)) {
             $this->service->logs()->create(
                 [
                     'remote_address' => $this->request->ip(),
@@ -63,6 +63,7 @@ class FailedServiceAuthEvent
                 'token' => $this->request->get('api_token'),
                 'params' => $this->request->all(),
                 'result' => $this->result
-            ]))->save();
+            ]
+        ))->save();
     }
 }

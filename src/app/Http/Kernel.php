@@ -53,7 +53,6 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.jwt' => \App\Http\Middleware\AuthJWT::class,
         'auth.service' => \App\Http\Middleware\AuthService::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,

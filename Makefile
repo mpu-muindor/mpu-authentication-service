@@ -22,3 +22,12 @@ run-dev:
 
 analyse:
 	cd src && $(MAKE) analyse
+
+phpcs:
+	cd src && $(MAKE) phpcs
+
+phpcsfix:
+	cd src && $(MAKE) phpcsfix
+
+inithooks:
+	git config core.hooksPath githooks
