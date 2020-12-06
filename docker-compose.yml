@@ -90,7 +90,7 @@ services:
 
   mpu-auth-migrator:
     image: mpu-auth-app
-    command: [ "./wait-for-it.sh", "mpu-auth-db:5432", "-t", "10", "--", "php", "artisan", "migrate" ]
+    command: [ "/app/wait-for-it.sh", "mpu-auth-db:5432", "-t", "10", "--", "php", "/app/artisan", "migrate" ]
     volumes:
       - ./src:/app
     networks:

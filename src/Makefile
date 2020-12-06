@@ -4,7 +4,7 @@ PHPSTAN=$(ROOT_DIR)/vendor/bin/phpstan
 PHPSTAN_OPTIONS=--memory-limit=2G
 
 PHPCS=$(ROOT_DIR)/vendor/bin/phpcs
-PHPCS_IGNORE=resources/lang,resources/views,bootstrap/cache,database/migrations,bin,config,app/Infrastructure/Services/Generated/,vendor,public,storage
+PHPCS_IGNORE=resources/lang,resources/views,bootstrap/cache,database/migrations,bin,config,vendor,public,storage
 
 PHPCBF=$(ROOT_DIR)/vendor/bin/phpcbf
 

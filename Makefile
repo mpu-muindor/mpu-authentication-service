@@ -19,6 +19,9 @@ db:
 attach:
 	docker-compose exec mpu-auth-app /bin/bash
 
+migrate:
+	docker-compose up mpu-auth-migrator
+
 run: start
 
 start:

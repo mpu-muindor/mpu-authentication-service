@@ -1,64 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Http\Services\JWTService;
-use App\Models\ReleasedToken;
+use App\Http\Requests\Auth\AuthorizeRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ApiToken;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function auth(AuthorizeRequest $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'login' => ['required', 'string', 'unique:users', 'min:4', 'max:32'],
-            'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'max:64']
-        ]);
+        $token = (string) $request->get('token');
+        /** @var ApiToken|null $token */
+        $token = ApiToken::find($token);
 
-        $data = $request->all(['login', 'email', 'password']);
-        $data['password'] = Hash::make($data['password']);
-        $user = new User($data);
-
-        $user->save();
-
-        return JWTService::generateJWT($user->toArray());
-    }
-
-    public function login(Request $request)
-    {
-        $request->validate([
-            'login' => ['required', 'string'],
-            'password' => ['required', 'string']
-        ]);
-
-        $login = $request->get('login');
-        $password = $request->get('password');
-
-        $user = User::whereLogin($login)->first();
-        if ($user && Hash::check($password, $user->password)) {
-            $responseData = [
-                'type' => 'JWT',
-                'token' => JWTService::generateJWT($user->makeVisible('salt')->toArray()),
-            ];
-            (new ReleasedToken(['token' => (string) sha1($responseData['token'])]))->save();
-
-            return $responseData;
+        if ($token === null) {
+            return response()->json(
+                ['active' => false],
+                403
+            );
         }
 
-        return response(['message' => 'Wrong login/password'], 401);
+        return response()->json(['active' => true]);
     }
 
-    public function logout(Request $request)
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
-        $jwt = $request->bearerToken();
-        $rt = ReleasedToken::find(sha1($jwt));
-        if ($rt && $rt->delete()) {
-            return response(['message' => 'OK']);
+        [$login, $email, $password] = array_values($request->all(['login', 'email', 'password']));
+        $password = Hash::make($password);
+        /** @var User|null $user */
+        $user = User::
+            where(function ($query) use ($login, $email) {
+                $query->where('login', $login)
+                    ->orWhere('email', $email);
+            })
+            ->where('password', $password)
+            ->first();
+        if ($user === null) {
+            return response()->json(['message' => 'Wrong login/password'], 403);
         }
 
-        return response(['message' => 'Something gone wrong! Please contact with admin.'], 500);
+        $token = new ApiToken();
+        if (!$user->tokens()->save($token)) {
+            throw new \App\Exceptions\SaveFailed();
+        }
+        return response()->json(['token' => $token->token]);
     }
 }
