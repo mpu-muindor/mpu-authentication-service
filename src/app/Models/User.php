@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Ramsey\Uuid\Uuid;
+use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 
 /**
  * @property integer $id
@@ -15,21 +15,11 @@ use Ramsey\Uuid\Uuid;
  */
 class User extends Model
 {
-    /**
-     * Устанавливает uuid новому пользователю.
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(static function (Model $model) {
-            $model->setAttribute($model->getKeyName(), Uuid::uuid4());
-        });
-    }
+    use Uuid;
 
     public $incrementing = false;
-
     protected $keyType = 'string';
+    protected $guarded = [];
 
     protected $fillable = [
         'login',

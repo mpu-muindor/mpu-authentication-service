@@ -23,7 +23,7 @@ class TennisProcedure extends Procedure
      * @param  Request  $request
      * @return string
      */
-    public function ping(Request $request)
+    public function ping(Request $request): ?string
     {
         return $request->input('innings');
     }
