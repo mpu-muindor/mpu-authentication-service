@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 
@@ -16,6 +17,7 @@ use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 class User extends Model
 {
     use Uuid;
+    use HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
