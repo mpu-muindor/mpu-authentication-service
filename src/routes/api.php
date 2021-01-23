@@ -16,3 +16,9 @@ Route::rpc(
 
 Route::post('/_auth', 'AuthController@auth');
 Route::post('/login', 'AuthController@login');
+Route::post(
+    '/',
+    function () {
+        return response()->json(['status' => 'OK']);
+    }
+);
