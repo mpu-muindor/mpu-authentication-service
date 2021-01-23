@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Procedures\TennisProcedure;
 use App\Http\Procedures\UserProcedure;
 use Illuminate\Support\Facades\Route;
-use App\Http\Procedures\TennisProcedure;
 
 // test rpc api
 Route::rpc(
@@ -16,4 +16,3 @@ Route::rpc(
 
 Route::post('/_auth', 'AuthController@auth');
 Route::post('/login', 'AuthController@login');
-Route::post('/getById', [\App\Http\Controllers\AuthController::class, 'getById']);
