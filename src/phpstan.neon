@@ -2,15 +2,10 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-
     paths:
         - app
-
     level: 5
-
     ignoreErrors:
-
-    excludes_analyse:
-        - ./*/*/FileToBeExcluded.php
-
+    excludePaths:
+        - ./database/migrations
     checkMissingIterableValueType: false

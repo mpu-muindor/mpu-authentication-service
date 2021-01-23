@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\AuthorizeRequest;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\UserGetByIdRequest;
 use App\Models\ApiToken;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -50,17 +49,5 @@ class AuthController extends Controller
             throw new \App\Exceptions\SaveFailed();
         }
         return response()->json(['token' => $token->token]);
-    }
-
-    public function getById(UserGetByIdRequest $request): ?array
-    {
-        $id = $request->input('id');
-
-        $user = User::find($id);
-        if ($user === null) {
-            return null;
-        }
-
-        return $user->toArray();
     }
 }

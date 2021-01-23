@@ -9,7 +9,6 @@ use App\Exceptions\UserNotFoundException;
 use App\Exceptions\UserSaveFailException;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\UpdatePasswordRequest;
-use App\Http\Requests\UserGetByIdRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Hash;
@@ -18,24 +17,6 @@ use Sajya\Server\Procedure;
 class UserProcedure extends Procedure
 {
     public static string $name = 'users';
-
-    /**
-     * @param UserGetByIdRequest $request
-     * @throw UserNotFoundException 1001
-     * @return array
-     */
-    public function getById(UserGetByIdRequest $request): array
-    {
-        $id = $request->input('id');
-
-        try {
-            $user = User::findOrFail($id);
-        } catch (ModelNotFoundException $ex) {
-            throw (new UserNotFoundException());
-        }
-
-        return $user->toArray();
-    }
 
     /**
      * @param RegisterRequest $request
