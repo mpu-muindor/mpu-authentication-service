@@ -17,8 +17,14 @@ Route::rpc(
 Route::post('/_auth', 'AuthController@auth');
 Route::post('/login', 'AuthController@login');
 Route::post(
-    '/',
-    function () {
-        return response()->json(['status' => 'OK']);
+    '/debug',
+    function (\Illuminate\Http\Request $request) {
+        $code = 401;
+        if ($request->bearerToken() === 'SECRET') {
+            $code = $request->get('token', false) === 'top' ? 200 : 401;
+        }
+        \Illuminate\Support\Facades\Log::info($request->bearerToken());
+        \Illuminate\Support\Facades\Log::info($request->header('Auth-Token'));
+        return response('', $code);
     }
 );

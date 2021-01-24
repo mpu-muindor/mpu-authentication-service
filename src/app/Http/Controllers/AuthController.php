@@ -14,33 +14,34 @@ class AuthController extends Controller
 {
     public function auth(AuthorizeRequest $request): \Illuminate\Http\JsonResponse
     {
-        $token = (string) $request->get('token');
+        $code = $request->bearerToken() === 'SECRET' ? 200 : 401;
+        $token = (string) $request->header('Auth-Token');
         /** @var ApiToken|null $token */
         $token = ApiToken::find($token);
 
-        if ($token === null) {
+        if ($token === null || $code !== 200) {
             return response()->json(
-                ['active' => false],
-                403
+                ['status' => 'ERROR'],
+                $code
             );
         }
 
-        return response()->json(['active' => true]);
+        return response()->json(['status' => 'OK'], $code);
     }
 
     public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
         [$login, $email, $password] = array_values($request->all(['login', 'email', 'password']));
-        $password = Hash::make($password);
         /** @var User|null $user */
         $user = User::
             where(function ($query) use ($login, $email) {
                 $query->where('login', $login)
                     ->orWhere('email', $email);
             })
-            ->where('password', $password)
             ->first();
         if ($user === null) {
+            return response()->json(['message' => 'Wrong login/password'], 403);
+        } elseif (!Hash::check($password, $user->password)) {
             return response()->json(['message' => 'Wrong login/password'], 403);
         }
 
